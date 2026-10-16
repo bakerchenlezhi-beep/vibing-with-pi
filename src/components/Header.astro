@@ -1,0 +1,14 @@
+---
+import { site } from '../config';
+import ThemeToggle from './ThemeToggle.astro';
+import { homeUrl } from '../lib/url';
+
+const home = homeUrl();
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__brand" href={home}>{site.name}</a>
+    <ThemeToggle />
+  </div>
+</header>

@@ -1,0 +1,72 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { Photo } from '../data/photos';
+import { formatMonthYear } from '../lib/format';
+
+interface Props {
+  photos: Photo[];
+}
+
+const { photos } = Astro.props;
+
+// Pre-build a large, optimised version of each photo for the lightbox.
+const items = await Promise.all(
+  photos.map(async (photo) => {
+    const { src } = await getImage({
+      src: photo.src,
+      width: Math.min(2400, photo.src.width),
+      format: 'webp',
+      quality: 88,
+    });
+
+    return {
+      src: photo.src,
+      large: src,
+      alt: photo.alt,
+      title: photo.title,
+      location: photo.location,
+      date: photo.date,
+      displayDate: formatMonthYear(photo.date),
+    };
+  }),
+);
+---
+
+<ul class="gallery">
+  {
+    items.map((item, index) => (
+      <li class="gallery__item">
+        <button
+          type="button"
+          class="gallery__button"
+          data-photo-index={index}
+          aria-label={`View “${item.title}”`}
+        >
+          <Image
+            src={item.src}
+            alt={item.alt}
+            widths={[400, 700, 1000, 1400]}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            loading={index < 2 ? 'eager' : 'lazy'}
+            decoding="async"
+            class="gallery__img"
+          />
+        </button>
+        <div class="gallery__meta">
+          <h2 class="gallery__title">{item.title}</h2>
+          <time class="gallery__date" datetime={item.date}>{item.displayDate}</time>
+        </div>
+      </li>
+    ))
+  }
+</ul>
+
+<script type="application/json" id="gallery-data" is:inline set:html={JSON.stringify(
+  items.map(({ large, alt, title, location, displayDate }) => ({
+    large,
+    alt,
+    title,
+    location,
+    displayDate,
+  })),
+)}></script>
