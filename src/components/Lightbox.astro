@@ -94,9 +94,12 @@
     });
     closeBtn.addEventListener('click', () => dialog.close());
 
-    // Close when clicking the dark area around the photo.
+    // Close when clicking the dark area around the photo (but not the photo,
+    // caption, or controls).
     dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) dialog.close();
+      const target = event.target as HTMLElement;
+      if (target.closest('.lightbox__figure, .lightbox__nav, .lightbox__close')) return;
+      dialog.close();
     });
 
     dialog.addEventListener('keydown', (event) => {
@@ -108,5 +111,37 @@
         render(index + 1);
       }
     });
+
+    // Touch gestures: swipe left/right to navigate, swipe down to close.
+    let startX = 0;
+    let startY = 0;
+
+    dialog.addEventListener(
+      'touchstart',
+      (event) => {
+        const touch = event.changedTouches[0];
+        if (!touch) return;
+        startX = touch.clientX;
+        startY = touch.clientY;
+      },
+      { passive: true },
+    );
+
+    dialog.addEventListener(
+      'touchend',
+      (event) => {
+        const touch = event.changedTouches[0];
+        if (!touch) return;
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+          render(dx < 0 ? index + 1 : index - 1);
+        } else if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+          dialog.close();
+        }
+      },
+      { passive: true },
+    );
   }
 </script>

@@ -11,7 +11,13 @@ export function withBase(path: string): string {
   return `${base}/${path.replace(/^\//, '')}`;
 }
 
-/** Absolute URL of the site home, respecting the base path. */
+/** Link to a site page with a trailing slash, e.g. `pageUrl('about')` → `/repo/about/`. */
+export function pageUrl(path = ''): string {
+  const clean = path.replace(/^\//, '').replace(/\/$/, '');
+  return clean ? `${base}/${clean}/` : `${base}/`;
+}
+
+/** Absolute path of the site home, respecting the base path. */
 export function homeUrl(): string {
   return `${base}/`;
 }

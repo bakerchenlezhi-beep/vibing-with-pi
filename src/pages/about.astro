@@ -1,0 +1,51 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import portrait from '../assets/portrait.jpg';
+import { site } from '../config';
+import { pageUrl } from '../lib/url';
+
+// Edit these paragraphs to tell your story.
+const bio = [
+  "I'm a photographer drawn to intimate scenes and the fleeting moments most people walk past — coastlines at dawn, empty streets after rain, the soft edges of a landscape.",
+  'My work sits somewhere between documentary and travel. I shoot slowly, usually on foot, and I care more about atmosphere than spectacle.',
+  'I take on a small number of commissions, prints, and licensing projects each year. If you have something in mind, I would love to hear about it.',
+];
+
+const title = `About · ${site.name}`;
+const description = `About ${site.name} — a photographer working with light, land, and quiet moments.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="container about">
+    <header class="page-head">
+      <h1>About</h1>
+    </header>
+
+    <div class="about__grid">
+      <div class="about__portrait">
+        <Image
+          src={portrait}
+          alt={`Portrait of ${site.name}`}
+          widths={[360, 720]}
+          sizes="(max-width: 760px) 70vw, 320px"
+        />
+      </div>
+
+      <div class="about__bio">
+        {bio.map((paragraph) => <p>{paragraph}</p>)}
+
+        <div class="about__links">
+          <a class="button" href={pageUrl('contact')}>Get in touch</a>
+          <a class="button button--ghost" href={`mailto:${site.email}`}>{site.email}</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>

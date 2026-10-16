@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config';
+
+const title = `Contact · ${site.name}`;
+const description = `Get in touch with ${site.name} about commissions, prints, and licensing.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+
+  <main class="container contact">
+    <header class="page-head">
+      <h1>Contact</h1>
+      <p class="page-head__lede">{site.contact.introduction}</p>
+    </header>
+
+    <form
+      id="contact-form"
+      class="contact-form"
+      data-endpoint={site.contact.endpoint}
+      data-email={site.email}
+      method="POST"
+    >
+      <div class="field">
+        <label for="cf-name">Name</label>
+        <input id="cf-name" name="name" type="text" autocomplete="name" required />
+      </div>
+
+      <div class="field">
+        <label for="cf-email">Email</label>
+        <input id="cf-email" name="email" type="email" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" rows="6" required></textarea>
+      </div>
+
+      <!-- Honeypot: hidden from people, tempting to bots. -->
+      <div class="field field--hp" aria-hidden="true">
+        <label for="cf-gotcha">Leave this field empty</label>
+        <input id="cf-gotcha" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="contact-form__actions">
+        <button class="button" type="submit">Send message</button>
+        <p class="contact-form__status" role="status" aria-live="polite"></p>
+      </div>
+
+      <p class="contact-form__note">
+        Prefer email? <a href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+    </form>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+
+  form?.addEventListener('submit', async (event) => {
+    const endpoint = form.dataset.endpoint?.trim();
+    const status = form.querySelector<HTMLElement>('.contact-form__status');
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    // No endpoint configured → open the visitor's email client instead.
+    if (!endpoint) {
+      event.preventDefault();
+      const data = new FormData(form);
+      const name = String(data.get('name') ?? '');
+      const from = String(data.get('email') ?? '');
+      const message = String(data.get('message') ?? '');
+      const subject = encodeURIComponent(`Website enquiry from ${name || 'a visitor'}`);
+      const body = encodeURIComponent(`${message}\n\n— ${name} (${from})`);
+      window.location.href = `mailto:${form.dataset.email}?subject=${subject}&body=${body}`;
+      if (status) status.textContent = 'Opening your email app…';
+      return;
+    }
+
+    event.preventDefault();
+
+    if (status) {
+      status.textContent = 'Sending…';
+      status.dataset.state = 'pending';
+    }
+    if (button) button.disabled = true;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+
+      form.reset();
+      if (status) {
+        status.textContent = 'Thanks — your message has been sent.';
+        status.dataset.state = 'success';
+      }
+    } catch (error) {
+      if (status) {
+        status.textContent = 'Sorry, something went wrong. Please email me directly.';
+        status.dataset.state = 'error';
+      }
+    } finally {
+      if (button) button.disabled = false;
+    }
+  });
+</script>

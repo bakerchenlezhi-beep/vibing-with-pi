@@ -1,0 +1,24 @@
+---
+import { site } from '../config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <p>© {year} {site.name}. All rights reserved.</p>
+    <nav aria-label="Social links">
+      {
+        site.links.map((link) => (
+          <a
+            href={link.url}
+            rel="me noopener"
+            target={link.url.startsWith('http') ? '_blank' : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</footer>

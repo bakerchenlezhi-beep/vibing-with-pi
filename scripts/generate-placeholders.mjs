@@ -46,4 +46,26 @@ for (const p of placeholders) {
   console.log(`created ${p.file} (${p.w}x${p.h})`);
 }
 
+// Portrait placeholder for the About page.
+const pw = 1100;
+const ph = 1400;
+const portraitSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${pw}" height="${ph}">
+  <defs>
+    <linearGradient id="p" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e3e6ea"/>
+      <stop offset="1" stop-color="#9aa4b0"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#p)"/>
+  <circle cx="550" cy="560" r="210" fill="rgba(255,255,255,0.55)"/>
+  <path d="M180 1400c0-230 166-380 370-380s370 150 370 380z" fill="rgba(255,255,255,0.55)"/>
+  <text x="50%" y="1320" fill="rgba(40,45,55,0.65)" font-family="Helvetica, Arial, sans-serif"
+    font-size="52" font-weight="600" letter-spacing="6" text-anchor="middle">PORTRAIT</text>
+</svg>`;
+
+await sharp(Buffer.from(portraitSvg)).jpeg({ quality: 82 }).toFile(
+  join(here, '..', 'src', 'assets', 'portrait.jpg'),
+);
+console.log('created ../src/assets/portrait.jpg (About page)');
+
 console.log(`\nDone — ${placeholders.length} placeholders written to src/assets/photos/`);

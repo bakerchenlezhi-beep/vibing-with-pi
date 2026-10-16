@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 import Gallery from '../components/Gallery.astro';
 import Lightbox from '../components/Lightbox.astro';
 import { photos } from '../data/photos';
 import { site } from '../config';
-
-const year = new Date().getFullYear();
 ---
 
 <BaseLayout>
@@ -23,22 +22,6 @@ const year = new Date().getFullYear();
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="container site-footer__inner">
-      <p>© {year} {site.name}. All rights reserved.</p>
-      <nav aria-label="Social links">
-        {site.links.map((link) => (
-          <a
-            href={link.url}
-            rel="me noopener"
-            target={link.url.startsWith('http') ? '_blank' : undefined}
-          >
-            {link.label}
-          </a>
-        ))}
-      </nav>
-    </div>
-  </footer>
-
+  <Footer />
   <Lightbox />
 </BaseLayout>

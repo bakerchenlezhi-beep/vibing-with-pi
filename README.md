@@ -3,11 +3,13 @@
 A minimal, fast photography portfolio built with [Astro](https://astro.build).
 Grid gallery, keyboard-friendly lightbox, and automatic light/dark mode.
 
-- **Grid gallery** with a lightbox (arrow keys, click-to-close)
+- **Grid gallery** with a lightbox (arrow keys, click-to-close, swipe on touch)
+- **Work, About & Contact** pages with a responsive mobile menu
+- **Contact form** that posts to any endpoint (e.g. Formspree) or falls back to email
 - **Light & dark theme** that follows your system and remembers your choice
 - **Responsive** masonry layout that keeps each photo's natural aspect ratio
 - **Optimised images** — Astro generates responsive `webp` sizes at build time
-- **Zero client framework** — tiny vanilla JS for the lightbox and theme toggle
+- **Zero client framework** — tiny vanilla JS for the lightbox, menu and form
 
 ---
 
@@ -68,16 +70,53 @@ export const site = {
   title: 'Your Name · Photography',
   description: 'A personal photography portfolio…',
   tagline: 'Photographs of light, land, and quiet moments.',
-  links: [
-    { label: 'Instagram', url: 'https://instagram.com/' },
-    { label: 'Email', url: 'mailto:hello@example.com' },
+  email: 'hello@example.com',
+  nav: [
+    { label: 'Work', href: '' },
+    { label: 'About', href: 'about' },
+    { label: 'Contact', href: 'contact' },
   ],
+  contact: { endpoint: '' }, // see “Contact form” below
 };
 ```
 
 Design tokens (colours, spacing, radius, max width) are CSS custom properties
 at the top of [`src/styles/global.css`](src/styles/global.css). The light and
 dark palettes are defined under `:root` and `:root[data-theme='dark']`.
+
+---
+
+## Pages
+
+- **Work** — `src/pages/index.astro`, the gallery.
+- **About** — `src/pages/about.astro`. Edit the `bio` array at the top of the
+  file and replace `src/assets/portrait.jpg` with your own picture.
+- **Contact** — `src/pages/contact.astro`, the contact form.
+
+Navigation is driven by `site.nav` in `src/config.ts` — add, remove, or reorder
+entries there. `href` is a path relative to the site base (`''` = home).
+
+---
+
+## Contact form
+
+The form posts to **any endpoint that accepts a `POST`**. The easiest option is
+[Formspree](https://formspree.io) (there's a free tier):
+
+1. Create a form on Formspree and copy the endpoint, e.g.
+   `https://formspree.io/f/abcdwxyz`.
+2. Set it in `src/config.ts`:
+
+   ```ts
+   contact: {
+     introduction: 'I’d love to hear from you…',
+     endpoint: 'https://formspree.io/f/abcdwxyz',
+   },
+   ```
+
+**No endpoint?** The form gracefully falls back to opening the visitor's email
+app with their message pre-filled, so contact still works out of the box. A
+hidden honeypot field helps cut down on spam.
 
 ---
 
@@ -138,20 +177,26 @@ file) and add a `CNAME` file to `public/` containing your domain:
 ├── scripts/
 │   └── generate-placeholders.mjs   # creates starter images (deletable)
 ├── src/
-│   ├── assets/photos/              # ← your photos live here
+│   ├── assets/
+│   │   ├── photos/                 # ← your photos live here
+│   │   └── portrait.jpg            # About-page portrait
 │   ├── components/
+│   │   ├── Footer.astro
 │   │   ├── Gallery.astro           # masonry grid + gallery data
-│   │   ├── Header.astro
-│   │   ├── Lightbox.astro          # dialog-based viewer
+│   │   ├── Header.astro            # nav + mobile menu
+│   │   ├── Lightbox.astro          # dialog viewer, swipe support
 │   │   └── ThemeToggle.astro
 │   ├── data/photos.ts              # photo list + metadata
 │   ├── layouts/BaseLayout.astro    # <head>, theme bootstrap
 │   ├── lib/
 │   │   ├── format.ts
 │   │   └── url.ts                  # base-path helpers
-│   ├── pages/index.astro
+│   ├── pages/
+│   │   ├── index.astro             # Work
+│   │   ├── about.astro
+│   │   └── contact.astro
 │   ├── styles/global.css
-│   └── config.ts                   # site name, tagline, links
+│   └── config.ts                   # site name, nav, contact
 ├── astro.config.mjs                # GitHub Pages site/base detection
 └── package.json
 ```

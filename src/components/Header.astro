@@ -1,14 +1,86 @@
 ---
 import { site } from '../config';
+import { homeUrl, pageUrl } from '../lib/url';
 import ThemeToggle from './ThemeToggle.astro';
-import { homeUrl } from '../lib/url';
 
-const home = homeUrl();
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => (href.replace(/\/$/, '') || '/') === current;
 ---
 
-<header class="site-header">
+<header class="site-header" data-nav-open="false">
   <div class="container site-header__inner">
-    <a class="site-header__brand" href={home}>{site.name}</a>
-    <ThemeToggle />
+    <a class="site-header__brand" href={homeUrl()}>{site.name}</a>
+
+    <div class="site-header__actions">
+      <nav id="site-nav" class="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          {
+            site.nav.map((item) => {
+              const href = pageUrl(item.href);
+              return (
+                <li>
+                  <a
+                    class="site-nav__link"
+                    href={href}
+                    aria-current={isActive(href) ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </nav>
+
+      <ThemeToggle />
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        aria-label="Toggle navigation"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+    </div>
   </div>
 </header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+
+  if (header && toggle) {
+    const setOpen = (open: boolean) => {
+      header.dataset.navOpen = String(open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(header.dataset.navOpen !== 'true');
+    });
+
+    // Close after choosing a link.
+    header.querySelectorAll('.site-nav__link').forEach((link) => {
+      link.addEventListener('click', () => setOpen(false));
+    });
+
+    // Close on Escape…
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    });
+
+    // …or when tapping outside the menu.
+    document.addEventListener('click', (event) => {
+      if (header.dataset.navOpen !== 'true') return;
+      if (!header.contains(event.target as Node)) setOpen(false);
+    });
+
+    // Reset when the layout switches back to the desktop nav.
+    window.matchMedia('(min-width: 721px)').addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>
