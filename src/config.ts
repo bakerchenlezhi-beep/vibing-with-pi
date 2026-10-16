@@ -3,13 +3,13 @@
  */
 
 /** Where contact-form fallbacks and mail links should be sent. */
-const email = 'hello@example.com';
+const email = 'baker.chen.lezhi@gmail.com';
 
 export const site = {
   /** Your name or studio name (shown in the header and hero). */
-  name: 'Your Name',
+  name: 'Baker Chen',
   /** Browser tab / SEO title. */
-  title: 'Your Name · Photography',
+  title: 'Baker Chen · Photography',
   /** Used for SEO + social previews. */
   description: 'A personal photography portfolio — light, land, and quiet moments.',
   /** Short line under your name on the homepage. */
@@ -29,7 +29,7 @@ export const site = {
 
   /** Links shown in the footer, alongside the copyright. */
   links: [
-    { label: 'Instagram', url: 'https://instagram.com/' },
+    { label: 'Instagram', url: 'https://www.instagram.com/microwaved_mice/' },
     { label: 'Email', url: `mailto:${email}` },
   ],
 
